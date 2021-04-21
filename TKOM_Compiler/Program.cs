@@ -2,11 +2,17 @@
 
 namespace TKOM_Compiler
 {
-    class Program
+    /// <summary>
+    /// Main class program
+    /// </summary>
+    public class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Main function
+        /// </summary>
+        public static void Main()
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Hello World");
         }
     }
 }
