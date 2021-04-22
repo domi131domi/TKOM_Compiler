@@ -30,7 +30,9 @@ namespace TKOM_Compiler
         {
             SkipToToken();
             if (IsEOT())
-                return new Token(null, TokenType.EOT, currentPosition);
+                return new Token(null, TokenType.SPECIAL_EOT, currentPosition);
+            Token token = null;
+            token = getOperator();
 
             return null;
         }
@@ -55,6 +57,7 @@ namespace TKOM_Compiler
             }
 
         }
+
         /// <summary>
         /// Skips all comments and updates position
         /// </summary>
@@ -104,6 +107,7 @@ namespace TKOM_Compiler
                 }
             }
         }
+
         /// <summary>
         /// Checks if it is end of text source
         /// </summary>
@@ -113,5 +117,22 @@ namespace TKOM_Compiler
             return currentChar == -1;
         }
 
+        private Token getOperator()
+        {
+            switch(currentChar)
+            {
+                case '/':
+                    return new Token('/', TokenType.OPERATOR_DIV, currentPosition);
+                case '*':
+                    return new Token('*', TokenType.OPERATOR_MUL, currentPosition);
+                case '+':
+                    return new Token('+', TokenType.OPERATOR_ADD, currentPosition);
+                case '-':
+                    return new Token('-', TokenType.OPERATOR_SUB, currentPosition);
+                case '=':
+                    return new Token('=', TokenType.OPERATOR_EQUAL, currentPosition);
+
+            }
+        }
     }
 }

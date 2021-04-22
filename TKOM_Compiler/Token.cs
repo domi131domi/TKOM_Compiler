@@ -24,16 +24,28 @@ namespace TKOM_Compiler
     {
         KEYWORD = 1,
         CONST = 2,
+        OPERATOR = 3,
+        BOOL_OPERATOR = 4,
         SPECIAL = 9
     }
 
     public enum TokenType
     {
         //Keywords
-        WHILE = 101,
-        IF = 102,
+        KEYWORD_WHILE = 101,
+        KEYWORD_IF = 102,
+
+        //Operators
+        OPERATOR_DIV = 301,
+        OPERATOR_MUL = 302,
+        OPERATOR_ADD = 303,
+        OPERATOR_SUB = 304,
+        OPERATOR_EQUAL = 305,
+        OPERATOR_QM = 306,  //? - operator more info in README.txt
+        //BoolOperators
+        BOOL_OPERATOR_NEG = 401,
         //Special
-        EOT = 901
+        SPECIAL_EOT = 901
     }
 
     public struct TokenPosition
