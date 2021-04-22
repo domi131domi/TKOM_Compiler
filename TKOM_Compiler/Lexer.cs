@@ -11,8 +11,11 @@ namespace TKOM_Compiler
         public TokenPosition CurrentPosition { get { return currentPosition; } }
         public int CurrentChar { get { return currentChar; } }
 
+        TokenPosition tokenPosition;
         TokenPosition currentPosition;
         int currentChar;
+        const int MAX_KEYWORD_LENGHT = 15;
+        bool isText = false;
 
         public Lexer(TextReader source)
         {
@@ -26,15 +29,21 @@ namespace TKOM_Compiler
         /// Gets one Token from source
         /// </summary>
         /// <returns>Returns token, if token wasn't recognised it returns token with category UNKNOWN</returns>
-        Token GetToken()
+        public Token GetToken()
         {
-            SkipToToken();
+            if(!isText)
+                SkipToToken();
             if (IsEOT())
                 return new Token(null, TokenType.SPECIAL_EOT, currentPosition);
             Token token = null;
+            tokenPosition = currentPosition;
+
+            token = GetText();
+            if (token != null)
+                return token;
             token = getOperator();
 
-            return null;
+            return token;
         }
 
         /// <summary>
@@ -122,17 +131,143 @@ namespace TKOM_Compiler
             switch(currentChar)
             {
                 case '/':
-                    return new Token('/', TokenType.OPERATOR_DIV, currentPosition);
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('/', TokenType.OPERATOR_DIV, tokenPosition);
                 case '*':
-                    return new Token('*', TokenType.OPERATOR_MUL, currentPosition);
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('*', TokenType.OPERATOR_MUL, tokenPosition);
                 case '+':
-                    return new Token('+', TokenType.OPERATOR_ADD, currentPosition);
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('+', TokenType.OPERATOR_ADD, tokenPosition);
                 case '-':
-                    return new Token('-', TokenType.OPERATOR_SUB, currentPosition);
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('-', TokenType.OPERATOR_SUB, tokenPosition);
                 case '=':
-                    return new Token('=', TokenType.OPERATOR_EQUAL, currentPosition);
-
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    if (currentChar == '=')
+                    {
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                        return new Token("==", TokenType.BOOL_OPERATOR_EQ, tokenPosition);
+                    }
+                    return new Token('=', TokenType.OPERATOR_EQ, tokenPosition);
+                case '!':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    if (currentChar == '=')
+                    {
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                        return new Token("!=", TokenType.BOOL_OPERATOR_NOTEQ, tokenPosition);
+                    }
+                    return new Token('!', TokenType.BOOL_OPERATOR_NEG, tokenPosition);
+                case '|':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    if (currentChar == '|')
+                    {
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                        return new Token("||", TokenType.BOOL_OPERATOR_OR, tokenPosition);
+                    }
+                    return new Token('|', TokenType.UNKNOWN, tokenPosition);
+                case '&':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    if (currentChar == '&')
+                    {
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                        return new Token("&&", TokenType.BOOL_OPERATOR_AND, tokenPosition);
+                    }
+                    return new Token('&', TokenType.UNKNOWN, tokenPosition);
+                case '<':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    if (currentChar == '=')
+                    {
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                        return new Token("<=", TokenType.BOOL_OPERATOR_LESSEQ, tokenPosition);
+                    }
+                    return new Token('<', TokenType.BOOL_OPERATOR_LESS, tokenPosition);
+                case '>':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    if (currentChar == '=')
+                    {
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                        return new Token(">=", TokenType.BOOL_OPERATOR_GREQ, tokenPosition);
+                    }
+                    return new Token('>', TokenType.BOOL_OPERATOR_GR, tokenPosition);
+                case '(':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('(', TokenType.OPEN_BRACKET, tokenPosition);
+                case ')':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token(')', TokenType.CLOSE_BRACKET, tokenPosition);
+                case '{':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('{', TokenType.OPEN_C_BRACKET, tokenPosition);
+                case '}':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('}', TokenType.CLOSE_C_BRACKET, tokenPosition);
+                case ';':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token(';', TokenType.SEMICOLON, tokenPosition);
+                case '"':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    isText = !isText;
+                    return new Token('"', TokenType.QUOTATION, tokenPosition);
+                default:
+                    return null;
             }
+        }
+
+        private Token GetText()
+        {
+            if(currentChar == '"')
+            {
+                currentChar = Source.Read();
+                currentPosition.column++;
+                isText = !isText;
+                return new Token('"', TokenType.QUOTATION, tokenPosition);
+            }
+            if(isText)
+            {
+                StringBuilder text = new StringBuilder();
+                while(currentChar != '"')
+                {
+                    text.Append((char)currentChar);
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    if (IsEOT())
+                        break;
+                }
+                return new Token(text.ToString(), TokenType.TEXT, tokenPosition);
+            }
+            return null;
+        }
+
+        private Token getNumber()
+        {
+            if(currentChar == '0')
+            {
+                
+            }
+            return null;
         }
     }
 }

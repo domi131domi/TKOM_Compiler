@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Reflection;
 using TKOM_Compiler;
@@ -79,4 +80,5 @@ namespace LexerTests
             }
         }
     }
+    
 }
