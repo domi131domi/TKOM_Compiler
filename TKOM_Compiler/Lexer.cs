@@ -9,6 +9,7 @@ namespace TKOM_Compiler
     {
         public TextReader Source { get; set; }
         public TokenPosition CurrentPosition { get { return currentPosition; } }
+        public int CurrentChar { get { return currentChar; } }
 
         TokenPosition currentPosition;
         int currentChar;
@@ -27,9 +28,10 @@ namespace TKOM_Compiler
         /// <returns>Returns token, if token wasn't recognised it returns token with category UNKNOWN</returns>
         Token GetToken()
         {
+            SkipToToken();
             if (IsEOT())
                 return new Token(null, TokenType.EOT, currentPosition);
-            SkipToToken();
+
             return null;
         }
 
@@ -53,7 +55,9 @@ namespace TKOM_Compiler
             }
 
         }
-
+        /// <summary>
+        /// Skips all comments and updates position
+        /// </summary>
         private void skipComment()
         {
             if((char)currentChar == '/')
@@ -66,6 +70,8 @@ namespace TKOM_Compiler
                     while (currentChar != '\r' && currentChar != '\n')
                     {
                         currentChar = Source.Read();
+                        if (IsEOT())
+                            return;
                     }
                     if(currentChar == '\r' && Source.Peek() == '\n')
                         Source.Read();
@@ -77,16 +83,31 @@ namespace TKOM_Compiler
                 {
                     Source.Read();
                     currentChar = Source.Read();
-                    while (currentChar != '*' && Source.Peek() != '/')
+                    currentPosition.column += 2;
+
+                    while (!(currentChar == '*' && Source.Peek() == '/'))
                     {
                         currentChar = Source.Read();
+                        if (IsEOT())
+                            return;
+                        if ((char)currentChar == '\n')
+                        {
+                            currentPosition.column = 1;
+                            currentPosition.line++;
+                        }
+                        else if (currentChar != '\r')
+                            currentPosition.column++;
                     }
                     Source.Read();
                     currentChar = Source.Read();
-                    currentPosition.column++;
+                    currentPosition.column += 2;
                 }
             }
         }
+        /// <summary>
+        /// Checks if it is end of text source
+        /// </summary>
+        /// <returns>True if is end of source, false if it is not</returns>
         private bool IsEOT()
         {
             return currentChar == -1;

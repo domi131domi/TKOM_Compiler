@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TKOM_Compiler", "TKOM_Compiler\TKOM_Compiler.csproj", "{26061FB4-4182-43ED-BA44-9DC699DF13A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TKOM_Compiler", "TKOM_Compiler\TKOM_Compiler.csproj", "{26061FB4-4182-43ED-BA44-9DC699DF13A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{E63C662E-73BF-47C7-9907-A7B983AF37F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTestProject1\UnitTests.csproj", "{E63C662E-73BF-47C7-9907-A7B983AF37F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

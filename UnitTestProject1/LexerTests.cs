@@ -15,7 +15,7 @@ namespace LexerTests
             Lexer lex = new Lexer(new StringReader(text));
             MethodInfo method = lex.GetType().GetMethod("SkipToToken", BindingFlags.NonPublic | BindingFlags.Instance);
             method.Invoke(lex, null);
-            Assert.AreEqual<char>('W',(char)lex.Source.Read());
+            Assert.AreEqual<char>('I',(char)lex.CurrentChar);
             Assert.AreEqual<int>(2, lex.CurrentPosition.column);
             Assert.AreEqual<int>(4, lex.CurrentPosition.line);
         }
@@ -27,7 +27,7 @@ namespace LexerTests
             Lexer lex = new Lexer(new StringReader(text));
             MethodInfo method = lex.GetType().GetMethod("SkipToToken", BindingFlags.NonPublic | BindingFlags.Instance);
             method.Invoke(lex, null);
-            Assert.AreEqual<char>('W', (char)lex.Source.Read());
+            Assert.AreEqual<char>('I', (char)lex.CurrentChar);
         }
 
         [TestMethod]
@@ -38,14 +38,44 @@ namespace LexerTests
                 Lexer lex = new Lexer(new StringReader(text));
                 MethodInfo method = lex.GetType().GetMethod("SkipToToken", BindingFlags.NonPublic | BindingFlags.Instance);
                 method.Invoke(lex, null);
-                Assert.AreEqual<char>('W', (char)lex.Source.Read());
+                Assert.AreEqual<char>('I', (char)lex.CurrentChar);
+                Assert.AreEqual<int>(1, lex.CurrentPosition.column);
+                Assert.AreEqual<int>(2, lex.CurrentPosition.line);
             }
             {
-                string text = "//komentarzyk \r\nIWorld";
+                string text = "/*komentarzyk*/IWorld";
                 Lexer lex = new Lexer(new StringReader(text));
                 MethodInfo method = lex.GetType().GetMethod("SkipToToken", BindingFlags.NonPublic | BindingFlags.Instance);
                 method.Invoke(lex, null);
-                Assert.AreEqual<char>('W', (char)lex.Source.Read());
+                Assert.AreEqual<char>('I', (char)lex.CurrentChar);
+                Assert.AreEqual<int>(16, lex.CurrentPosition.column);
+                Assert.AreEqual<int>(1, lex.CurrentPosition.line);
+            }
+        }
+        [TestMethod]
+        public void SkipWhiteAndCommets()
+        {
+            {
+                string text = "//komentarzyk \n         \r\n           /*aasd \n koaskdosa kaosd*/         \n\n \r\nIWorld";
+                Lexer lex = new Lexer(new StringReader(text));
+                MethodInfo method = lex.GetType().GetMethod("SkipToToken", BindingFlags.NonPublic | BindingFlags.Instance);
+                method.Invoke(lex, null);
+                Assert.AreEqual<char>('I', (char)lex.CurrentChar);
+                Assert.AreEqual<int>(1, lex.CurrentPosition.column);
+                Assert.AreEqual<int>(7, lex.CurrentPosition.line);
+            }
+        }
+        [TestMethod]
+        public void WithoutCommentAndWhite()
+        {
+            {
+                string text = "IWorld";
+                Lexer lex = new Lexer(new StringReader(text));
+                MethodInfo method = lex.GetType().GetMethod("SkipToToken", BindingFlags.NonPublic | BindingFlags.Instance);
+                method.Invoke(lex, null);
+                Assert.AreEqual<char>('I', (char)lex.CurrentChar);
+                Assert.AreEqual<int>(1, lex.CurrentPosition.column);
+                Assert.AreEqual<int>(1, lex.CurrentPosition.line);
             }
         }
     }
