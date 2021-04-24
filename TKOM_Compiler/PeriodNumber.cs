@@ -14,5 +14,10 @@ namespace TKOM_Compiler
             DoublePart = doublepart;
             Period = period;
         }
+        public override string ToString()
+        {
+                return (DoublePart.ToString().Contains(',')? DoublePart.ToString() : DoublePart.ToString() + ",") + "(" + Period.ToString() + ")";
+        }
     }
+
 }

@@ -3,7 +3,7 @@
 int main()
 {
     string = "text";
-    x = 3;	//comment line
+    int x = 3;	//comment line
     if (x== 3 && x != 1)
     {
         /* long commeeeee
@@ -11,4 +11,6 @@ int main()
         eeeent */
         x = 2;
     }
+    frac num = 0.(3333);
+    frac num = 13.123(22);
 }
