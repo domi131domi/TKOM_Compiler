@@ -13,7 +13,7 @@ namespace TKOM_Compiler
 
         public Token(object value, TokenType type, TokenPosition position)
         {
-            Category = (TokenCategory)((int)type % 100);
+            Category = (TokenCategory)((int)type / 100);
             Type = type;
             Value = value;
             Position = position;
@@ -28,6 +28,7 @@ namespace TKOM_Compiler
         BOOL_OPERATOR = 4,
         BRACKET = 5,
         VALUE = 6,
+        TYPE = 7,
         SPECIAL = 9
     }
 
@@ -36,6 +37,8 @@ namespace TKOM_Compiler
         //Keywords
         KEYWORD_WHILE = 101,
         KEYWORD_IF = 102,
+        KEYWORD_ELSE = 103,
+        KEYWORD_RETURN = 104,
 
         //Operators
         OPERATOR_DIV = 301,
@@ -63,10 +66,25 @@ namespace TKOM_Compiler
         OPEN_C_BRACKET = 503,
         CLOSE_C_BRACKET = 504,
         //Values
-        TEXT = 601,
+        VAL_TEXT = 601,
+        VAL_DOUBLE = 602,
+        VAL_PERIOD_NUMBER = 603,
+        VAL_INTEGER = 604,
+        VAL_TRUE = 605,
+        VAL_FALSE = 606,
+        //Types
+        TYPE_VOID = 701,
+        TYPE_INT = 702,
+        TYPE_DOUBLE = 703,
+        TYPE_STRING = 704,
+        TYPE_FRAC = 705,
+        TYPE_BOOL = 706,
         //Special
         SPECIAL_EOT = 901,
-        UNKNOWN = 902
+        UNKNOWN = 902,
+        BAD_NUMBER = 903,
+        EXPECTED_CLOSING_BRACKET = 904,
+        IDENTIFIER = 905,
     }
 
     public struct TokenPosition
@@ -74,4 +92,5 @@ namespace TKOM_Compiler
         public int column;
         public int line;
     }
+
 }

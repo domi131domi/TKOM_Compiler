@@ -31,7 +31,7 @@ namespace TKOM_Compiler
         /// <returns>Returns token, if token wasn't recognised it returns token with category UNKNOWN</returns>
         public Token GetToken()
         {
-            if(!isText)
+            if (!isText)
                 SkipToToken();
             if (IsEOT())
                 return new Token(null, TokenType.SPECIAL_EOT, currentPosition);
@@ -39,10 +39,23 @@ namespace TKOM_Compiler
             tokenPosition = currentPosition;
 
             token = GetText();
-            if (token != null)
-                return token;
-            token = getOperator();
-
+            if (token == null)
+                token = GetOperator();
+            if (token == null)
+                token = GetNumber();
+            if (token == null)
+            {
+                string identifier = BuildIdentifier();
+                if(!string.IsNullOrEmpty(identifier))
+                    token = GetKeyword(identifier);
+            }
+            if(token == null)
+            {
+                char unknown = (char)currentChar;
+                currentChar = Source.Read();
+                currentPosition.column++;
+                return new Token(unknown, TokenType.UNKNOWN, tokenPosition);
+            }
             return token;
         }
 
@@ -72,10 +85,10 @@ namespace TKOM_Compiler
         /// </summary>
         private void skipComment()
         {
-            if((char)currentChar == '/')
+            if ((char)currentChar == '/')
             {
                 int next = Source.Peek();
-                if(next != -1 && (char)next == '/')
+                if (next != -1 && (char)next == '/')
                 {
                     Source.Read();
                     currentChar = Source.Read();
@@ -85,13 +98,13 @@ namespace TKOM_Compiler
                         if (IsEOT())
                             return;
                     }
-                    if(currentChar == '\r' && Source.Peek() == '\n')
+                    if (currentChar == '\r' && Source.Peek() == '\n')
                         Source.Read();
                     currentChar = Source.Read();
                     currentPosition.line++;
                     currentPosition.column = 1;
                 }
-                else if(next != -1 && (char)next == '*')
+                else if (next != -1 && (char)next == '*')
                 {
                     Source.Read();
                     currentChar = Source.Read();
@@ -126,9 +139,14 @@ namespace TKOM_Compiler
             return currentChar == -1;
         }
 
-        private Token getOperator()
+
+        /// <summary>
+        /// Gets token
+        /// </summary>
+        /// <returns>Returns token if any operator is recognised, otherwise null</returns>
+        private Token GetOperator()
         {
-            switch(currentChar)
+            switch (currentChar)
             {
                 case '/':
                     currentChar = Source.Read();
@@ -231,24 +249,31 @@ namespace TKOM_Compiler
                     currentPosition.column++;
                     isText = !isText;
                     return new Token('"', TokenType.QUOTATION, tokenPosition);
+                case '?':
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return new Token('?', TokenType.OPERATOR_QM, tokenPosition);
                 default:
                     return null;
             }
         }
 
+        /// <summary>
+        /// Reads text after quotation mark and creates token
+        /// </summary>
         private Token GetText()
         {
-            if(currentChar == '"')
+            if (currentChar == '"')
             {
                 currentChar = Source.Read();
                 currentPosition.column++;
                 isText = !isText;
                 return new Token('"', TokenType.QUOTATION, tokenPosition);
             }
-            if(isText)
+            if (isText)
             {
                 StringBuilder text = new StringBuilder();
-                while(currentChar != '"')
+                while (currentChar != '"')
                 {
                     text.Append((char)currentChar);
                     currentChar = Source.Read();
@@ -256,18 +281,194 @@ namespace TKOM_Compiler
                     if (IsEOT())
                         break;
                 }
-                return new Token(text.ToString(), TokenType.TEXT, tokenPosition);
+                return new Token(text.ToString(), TokenType.VAL_TEXT, tokenPosition);
             }
             return null;
         }
 
-        private Token getNumber()
+        /// <summary>
+        /// Creates token for number
+        /// </summary>
+        /// <returns>Token Integer or Token PeriodNumber or Token Double, depends of type of read number</returns>
+        private Token GetNumber()
         {
-            if(currentChar == '0')
+            if (currentChar == '0')
             {
-                
+                currentChar = Source.Read();
+                currentPosition.column++;
+                if (currentChar != '.')
+                    return CreateTokenFromWord('0', TokenType.BAD_NUMBER);
+
+                currentChar = Source.Read();
+                currentPosition.column++;
+                if (char.IsDigit((char)currentChar))
+                {
+                    return CreateDecimalNumber();
+                }
+                else if (currentChar == '(')
+                {
+                    currentChar = Source.Read();
+                    currentPosition.column++;
+                    return CreatePeriodNumberToken(0);
+                }
+                else
+                {
+                    return CreateTokenFromWord("0.", TokenType.BAD_NUMBER);
+                }
             }
+            else if (char.IsDigit((char)currentChar))
+            {
+                int result = 0;
+                while (!IsEOT() && !IsWhite())
+                {
+                    if (char.IsDigit((char)currentChar))
+                    {
+                        result = result * 10 + (currentChar - '0');
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                    }
+                    else if (currentChar == '.')
+                    {
+                        currentChar = Source.Read();
+                        currentPosition.column++;
+                        return CreateDecimalNumber(result);
+                    }
+                    else
+                    {
+                        return new Token(result, TokenType.VAL_INTEGER, tokenPosition);
+                    }
+                }
+                return new Token(result, TokenType.VAL_INTEGER, tokenPosition);
+            }
+
             return null;
         }
+
+        /// <summary>
+        /// Creates unknown token with value of text untill first white
+        /// </summary>
+        /// <param name="first">adds character as a first letter of token</param>
+        /// <returns>Returns unknown token</returns>
+        private Token CreateTokenFromWord(char first, TokenType type)
+        {
+            StringBuilder text = new StringBuilder();
+            text.Append(first);
+            while (!IsWhite())
+            {
+                text.Append((char)currentChar);
+                currentChar = Source.Read();
+                currentPosition.column++;
+            }
+            return new Token(text.ToString(), type, tokenPosition);
+        }
+
+        /// <summary>
+        /// Creates unknown token with value of text untill first white
+        /// </summary>
+        /// <param name="first">adds string as a first letters of token</param>
+        /// <returns>Returns unknown token</returns>
+        private Token CreateTokenFromWord(string first, TokenType type)
+        {
+            StringBuilder text = new StringBuilder();
+            text.Append(first);
+            while (!IsWhite())
+            {
+                text.Append((char)currentChar);
+                currentChar = Source.Read();
+                currentPosition.column++;
+            }
+            return new Token(text.ToString(), type, tokenPosition);
+        }
+
+        bool IsWhite()
+        {
+            return (currentChar == ' ' || currentChar == '\r' || currentChar == '\n');
+        }
+
+        private Token CreateDecimalNumber(double prefix = 0)
+        {
+            int power = 1;
+            double dec = 0;
+            while (!IsWhite() && !IsEOT() && char.IsDigit((char)currentChar))
+            {
+                dec = dec * 10 + (currentChar - '0');
+                power++;
+                currentChar = Source.Read();
+                currentPosition.column++;
+            }
+            dec = dec / Math.Pow(10, power - 1) + prefix;
+            if (currentChar == '(')
+            {
+                currentChar = Source.Read();
+                currentPosition.column++;
+                return CreatePeriodNumberToken(dec);
+            }
+            return new Token(dec, TokenType.VAL_DOUBLE, tokenPosition);
+        }
+
+        private Token CreatePeriodNumberToken(double prefix)
+        {
+            int power = 1;
+            int period = 0;
+            while (!IsWhite() && !IsEOT() && char.IsDigit((char)currentChar))
+            {
+                period = period * 10 + (currentChar - '0');
+                power++;
+                currentChar = Source.Read();
+                currentPosition.column++;
+            }
+            if (currentChar != ')')
+                return new Token(new PeriodNumber(prefix, period), TokenType.EXPECTED_CLOSING_BRACKET, tokenPosition);
+            currentChar = Source.Read();
+            currentPosition.column++;
+            return new Token(new PeriodNumber(prefix, period), TokenType.VAL_PERIOD_NUMBER, tokenPosition);
+        }
+
+        private string BuildIdentifier()
+        {
+            StringBuilder iden = new StringBuilder();
+            while ((currentChar >= 'A' && currentChar <= 'z') || currentChar == '_')
+            {
+                iden.Append((char)currentChar);
+                currentChar = Source.Read();
+                currentPosition.column++;
+            }
+            return iden.ToString();
+        }
+
+        /// <summary>
+        /// If string is keyword returns token else null
+        /// </summary>
+        private Token GetKeyword(string word)
+        {
+            TokenType tokenType;
+            if(KeyWords.TryGetValue(word,out tokenType))
+            {
+                Token token = new Token(word, tokenType, tokenPosition);
+                if (tokenType == TokenType.VAL_TRUE)
+                    token.Value = true;
+                else if (tokenType == TokenType.VAL_FALSE)
+                    token.Value = false;
+                return token;
+            }
+            return new Token(word, TokenType.IDENTIFIER, tokenPosition);
+        }
+
+
+        private static Dictionary<string, TokenType> KeyWords = new Dictionary<string, TokenType>()
+        {
+            { "while", TokenType.KEYWORD_WHILE},
+            { "if", TokenType.KEYWORD_IF},
+            { "else", TokenType.KEYWORD_ELSE},
+            { "return", TokenType.KEYWORD_RETURN},
+            { "void", TokenType.TYPE_VOID},
+            { "int", TokenType.TYPE_INT},
+            { "double", TokenType.TYPE_DOUBLE},
+            { "bool", TokenType.TYPE_BOOL},
+            { "string", TokenType.TYPE_STRING},
+            { "frac", TokenType.TYPE_FRAC},
+            { "true", TokenType.VAL_TRUE},
+            { "false", TokenType.VAL_FALSE},
+        };
     }
 }

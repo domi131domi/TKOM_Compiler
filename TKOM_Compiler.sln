@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TKOM_Compiler", "TKOM_Compi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTestProject1\UnitTests.csproj", "{E63C662E-73BF-47C7-9907-A7B983AF37F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Compiler_Tests_From_File", "Compiler_Tests_From_File\Compiler_Tests_From_File.csproj", "{2E459C8C-1143-4D45-8406-951AA9E3AADB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{E63C662E-73BF-47C7-9907-A7B983AF37F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E63C662E-73BF-47C7-9907-A7B983AF37F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E63C662E-73BF-47C7-9907-A7B983AF37F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E459C8C-1143-4D45-8406-951AA9E3AADB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E459C8C-1143-4D45-8406-951AA9E3AADB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E459C8C-1143-4D45-8406-951AA9E3AADB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E459C8C-1143-4D45-8406-951AA9E3AADB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

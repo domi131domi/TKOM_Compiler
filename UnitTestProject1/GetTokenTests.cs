@@ -28,7 +28,7 @@ namespace LexerTests
             Assert.AreEqual<TokenType>(TokenType.OPERATOR_EQ, lex.GetToken().Type);
             Assert.AreEqual<TokenType>(TokenType.OPERATOR_MUL, lex.GetToken().Type);
             Assert.AreEqual<TokenType>(TokenType.QUOTATION, lex.GetToken().Type);
-            Assert.AreEqual<TokenType>(TokenType.TEXT, lex.GetToken().Type);
+            Assert.AreEqual<TokenType>(TokenType.VAL_TEXT, lex.GetToken().Type);
             Assert.AreEqual<TokenType>(TokenType.QUOTATION, lex.GetToken().Type);
             Assert.AreEqual<TokenType>(TokenType.BOOL_OPERATOR_AND, lex.GetToken().Type);
             Assert.AreEqual<TokenType>(TokenType.BOOL_OPERATOR_OR, lex.GetToken().Type);
@@ -41,7 +41,7 @@ namespace LexerTests
             Lexer lex = new Lexer(new StringReader(text));
             Assert.AreEqual<TokenType>(TokenType.QUOTATION, lex.GetToken().Type);
             Token token = lex.GetToken();
-            Assert.AreEqual<TokenType>(TokenType.TEXT, token.Type);
+            Assert.AreEqual<TokenType>(TokenType.VAL_TEXT, token.Type);
             Assert.AreEqual<string>(" text ", (string)token.Value);
             Assert.AreEqual<TokenType>(TokenType.QUOTATION, lex.GetToken().Type);
         }

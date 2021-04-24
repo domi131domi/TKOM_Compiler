@@ -1,0 +1,14 @@
+﻿123456789
+
+int main()
+{
+    string = "text";
+    x = 3;	//comment line
+    if (x== 3 && x != 1)
+    {
+        /* long commeeeee
+        eeee
+        eeeent */
+        x = 2;
+    }
+}

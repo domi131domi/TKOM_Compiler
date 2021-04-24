@@ -12,7 +12,9 @@ namespace TKOM_Compiler
         /// </summary>
         public static void Main()
         {
-            Console.WriteLine("Hello World");
+            double d;
+            d = 0.1 + 0.02;
+            Console.WriteLine(d);
         }
     }
 }
